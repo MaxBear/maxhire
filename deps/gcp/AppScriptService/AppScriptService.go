@@ -13,6 +13,7 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/script/v1"
 
+	analyzer "github.com/MaxBear/maxhire/analyzer/openai"
 	"github.com/MaxBear/maxhire/deps/gcp/models"
 )
 
@@ -23,6 +24,7 @@ type AppScriptService struct {
 	withOauthRedirectUrl      string
 	withOauthRedirectPort     int
 	withAppScriptDeploymentId string
+	llm                       *analyzer.Ai
 	oAuthClient               *http.Client
 	scriptService             *script.Service
 }
@@ -56,6 +58,12 @@ func WithOauthRedirectPort(port int) AppScriptServiceOpt {
 func WithAppScriptDeploymentId(id string) AppScriptServiceOpt {
 	return func(s *AppScriptService) {
 		s.withAppScriptDeploymentId = id
+	}
+}
+
+func WithLlmAnalyzer(llm *analyzer.Ai) AppScriptServiceOpt {
+	return func(s *AppScriptService) {
+		s.llm = llm
 	}
 }
 
@@ -154,7 +162,7 @@ func (s *AppScriptService) saveToken(token *oauth2.Token) error {
 	log.Printf("Saving credential file to: %s\n", s.withTokFile)
 	f, err := os.OpenFile(s.withTokFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Printf("Unable to cache oauth token: %v", err)
+		log.Printf("Unable to cache oauth token, error: %v", err)
 		return err
 	}
 	defer f.Close()
@@ -187,7 +195,7 @@ func (s *AppScriptService) getClient(config *oauth2.Config) (*http.Client, error
 }
 
 func (s *AppScriptService) GetApplicationEmails(start_date, end_date string) (models.EmailRecords, error) {
-	emails := []models.EmailRecord{}
+	emails := []*models.EmailRecord{}
 
 	req := &script.ExecutionRequest{
 		Function: "runFilterMyEmails", // The name of the function in your .gs file
@@ -240,4 +248,46 @@ func (s *AppScriptService) GetApplicationEmails(start_date, end_date string) (mo
 	}
 
 	return emails, nil
+}
+
+func (s *AppScriptService) guessCompanyName(email *models.EmailRecord) (string, error) {
+	companyName, err := s.llm.GuessCompanyAppliedBasedOnSubject(s.context, email.Subject)
+	if err != nil {
+		log.Printf("llm error when try to guess company name based on email subject %q, err : %s", email.Subject, err.Error())
+		return "", err
+	}
+	if !models.Company(companyName).Invalid() {
+		return companyName, nil
+	}
+	ddomain := models.Sender(email.FullSender)
+	companyName, noreply := ddomain.Domain()
+	if noreply {
+		return companyName, nil
+	}
+	companyName, err = s.llm.GuessCompanyAppliedBasedOnSender(s.context, string(email.FullSender))
+	if err != nil {
+		log.Printf("llm error when try to guess company name based on sender address %q, err : %s", email.FullSender, err.Error())
+		return "", err
+	}
+	return companyName, nil
+}
+
+func (s *AppScriptService) ParseApplicationEmails(emails models.EmailRecords) (models.Applications, []error) {
+	var applications models.Applications
+	applications = []*models.Application{}
+	errs := []error{}
+
+	for idx, email := range emails {
+		application := &models.Application{
+			EmailRecord: email,
+			Status:      models.StatusPending,
+		}
+		companyName, _ := s.guessCompanyName(email)
+		application.Company = companyName
+		log.Printf("%d %s %s => %s", idx+1, email.Subject, email.FullSender, companyName)
+
+		applications = append(applications, application)
+	}
+
+	return applications, errs
 }

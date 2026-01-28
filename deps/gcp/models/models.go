@@ -100,18 +100,84 @@ func (s Sender) Domain() (string, bool) {
 type Status int
 
 const (
-	StatusPending Status = iota // 0
-	StatusReject                // 1
-	StatusSuccess               // 2
+	Pending Status = iota // 0
+	Reject                // 1
+	Success               // 2
 )
 
+// String method for general printing (fmt.Println)
+func (s Status) String() string {
+	return [...]string{"Pending", "Reject", "Success"}[s]
+}
+
+// MarshalJSON allows the enum to be marshaled as a string in JSON
+func (s Status) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+func (s *Status) UnmarshalJSON(data []byte) error {
+	// 1. Unmarshal the raw JSON bytes into a string
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return err
+	}
+
+	// 2. Map the string to the corresponding constant
+	switch name {
+	case "Pending":
+		*s = Pending
+	case "Reject":
+		*s = Reject
+	case "Success":
+		*s = Success
+	}
+	return nil
+}
+
 type Application struct {
-	Company     string
-	Status      Status
-	EmailRecord *EmailRecord
+	Company     string       `json:"Company"`
+	Status      Status       `json:"Status"`
+	EmailRecord *EmailRecord `json:"Email"`
 }
 
 type Applications []*Application
+
+func (in Applications) ToJson(jsonFile string) error {
+	fileData, err := json.MarshalIndent(in, "", "  ")
+	if err != nil {
+		log.Printf("Unable marshal json data, error : %s", err.Error())
+		return err
+	}
+
+	// 2. Write to file
+	err = os.WriteFile(jsonFile, fileData, 0644)
+	if err != nil {
+		log.Printf("Unable to cache application csv file %q, error : %v", jsonFile, err)
+		return err
+	}
+
+	log.Printf("successfully saved applications to %s\n", jsonFile)
+	return nil
+}
+
+func FromJson(jsonFile string) (Applications, error) {
+	var apps Applications
+	apps = []*Application{}
+
+	byteValue, err := os.ReadFile(jsonFile)
+	if err != nil {
+		log.Printf("Unable marshal json data, error : %s", err.Error())
+		return apps, err
+	}
+
+	// 2. Unmarshal JSON into the struct
+	if err := json.Unmarshal(byteValue, &apps); err != nil {
+		log.Printf("Unable unmarshal application data from json file %q, error : %s", jsonFile, err.Error())
+		return apps, err
+	}
+
+	return apps, nil
+}
 
 func (in Applications) ToCsv(csvFile string) error {
 	f, err := os.OpenFile(csvFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
@@ -199,5 +265,6 @@ func (in Applications) Print() {
 		fmt.Printf("%10s: %s\n", "Sender", app.EmailRecord.FullSender)
 		fmt.Printf("%10s: %s\n", "Domain", app.EmailRecord.Domain)
 		fmt.Printf("%10s: %s\n", "Company", app.Company)
+		fmt.Printf("%10s: %s\n", "Status", app.Status)
 	}
 }

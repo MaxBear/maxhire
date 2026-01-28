@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -59,5 +61,37 @@ func TestSender(t *testing.T) {
 		company, noreply := s.Domain()
 		assert.Equal(t, true, noreply)
 		assert.Equal(t, "dropbox.com", company)
+	}
+}
+
+func TestFromJson(t *testing.T) {
+
+	tcs := []struct {
+		apps     Applications
+		jsonFile string
+	}{
+		{
+			apps: []*Application{
+				{
+					Company: "Samsara",
+					Status:  Pending,
+					EmailRecord: &EmailRecord{
+						SentTime:   time.Date(2025, time.October, 3, 19, 02, 06, 0, time.UTC),
+						Subject:    "Thank you for applying to Samsara",
+						FullSender: "no-reply@us.greenhouse-mail.io",
+						Domain:     "us.greenhouse-mail.io",
+					},
+				},
+			},
+			jsonFile: "../../../test_data/applications1.json",
+		},
+	}
+
+	for i, tc := range tcs {
+		t.Run(fmt.Sprintf("test%d", i), func(t *testing.T) {
+			apps, err := FromJson(tc.jsonFile)
+			require.Nil(t, err)
+			assert.Equal(t, tc.apps, apps)
+		})
 	}
 }

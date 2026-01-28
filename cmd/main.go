@@ -17,16 +17,14 @@ import (
 )
 
 func validTimeRange(start_time, end_time string) bool {
-	dateStr := "2006-01-01"
-
 	// time.DateOnly is a predefined constant for "2006-01-02"
-	ts, err := time.Parse(dateStr, start_time)
+	ts, err := time.Parse(time.DateOnly, start_time)
 	if err != nil {
 		log.Printf("error parsing start time, error: %s", err.Error())
 		return false
 	}
 
-	te, err := time.Parse(dateStr, end_time)
+	te, err := time.Parse(time.DateOnly, end_time)
 	if err != nil {
 		log.Printf("error parsing end time, error: %s", err.Error())
 		return false
@@ -40,7 +38,7 @@ func validTimeRange(start_time, end_time string) bool {
 	return true
 }
 
-func genApplicationData(start_time, end_time, csvFile string) error {
+func genApplicationData(start_time, end_time, jsonFile, csvFile string) error {
 	ctx := context.Background()
 
 	err := godotenv.Load("../configs/.env")
@@ -94,6 +92,7 @@ func genApplicationData(start_time, end_time, csvFile string) error {
 	if len(applications) > 0 {
 		applications.Print()
 		applications.ToCsv(csvFile)
+		applications.ToJson(jsonFile)
 	}
 
 	return nil
@@ -101,6 +100,7 @@ func genApplicationData(start_time, end_time, csvFile string) error {
 
 func main() {
 	csv := flag.String("csv", "applications.csv", "csv file contains job application data")
+	json := flag.String("json", "applications.json", "csv file contains job application data")
 	load := flag.Bool("load", false, "load existing job application data from csv file")
 	gen := flag.Bool("gen", false, "load existing job application data from csv file")
 	start_time := flag.String("start_time", "", "start time for filtering email application confirmations, format: 2006-01-01")
@@ -108,7 +108,7 @@ func main() {
 	flag.Parse()
 
 	if *load {
-		apps, err := gcp.FromCsv(*csv)
+		apps, err := gcp.FromJson(*json)
 		if err != nil {
 			os.Exit(1)
 		}
@@ -122,7 +122,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		err := genApplicationData(*start_time, *end_time, *csv)
+		err := genApplicationData(*start_time, *end_time, *json, *csv)
 		if err != nil {
 			os.Exit(1)
 		}

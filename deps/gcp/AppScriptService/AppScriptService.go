@@ -280,7 +280,7 @@ func (s *AppScriptService) ParseApplicationEmails(emails models.EmailRecords) (m
 	for idx, email := range emails {
 		application := &models.Application{
 			EmailRecord: email,
-			Status:      models.StatusPending,
+			Status:      models.Pending,
 		}
 		companyName, _ := s.guessCompanyName(email)
 		application.Company = companyName

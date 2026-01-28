@@ -1,0 +1,12 @@
+[
+    {
+        "Company": "Samsara",
+        "Status": "Pending",
+        "Email": {
+            "SentTime": "2025-10-03T19:02:06Z",
+            "Subject": "Thank you for applying to Samsara",
+            "FullSender": "no-reply@us.greenhouse-mail.io",
+            "Domain": "us.greenhouse-mail.io"
+        }
+    }
+]

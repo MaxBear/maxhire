@@ -23,6 +23,7 @@ type EmailRecord struct {
 	Subject    string    `json:"Subject"`
 	FullSender string    `json:"FullSender"`
 	Domain     string    `json:"Domain"`
+	Msg        string    `json:"Msg"`
 }
 
 type EmailRecords []*EmailRecord

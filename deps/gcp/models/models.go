@@ -37,7 +37,7 @@ func (ut *EmailRecords) UnmarshalJSON(dat []byte) error {
 	return nil
 }
 
-func (in EmailRecords) ToApplications() []*Application {
+func (in EmailRecords) ToApplications() Applications {
 	res := []*Application{}
 	for _, email := range in {
 		res = append(res, &Application{

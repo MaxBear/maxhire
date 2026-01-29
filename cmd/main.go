@@ -38,7 +38,7 @@ func validTimeRange(start_time, end_time string) bool {
 	return true
 }
 
-func genApplicationData(start_time, end_time, jsonFile, csvFile string) error {
+func genApplicationData(start_time, end_time, jsonFile, csvFile string, useLlm bool) error {
 	ctx := context.Background()
 
 	err := godotenv.Load("../configs/.env")
@@ -79,15 +79,21 @@ func genApplicationData(start_time, end_time, jsonFile, csvFile string) error {
 	jsonOutput, _ := json.MarshalIndent(emails, "", "  ")
 	fmt.Printf("\nJSON output:\n%s\n", string(jsonOutput))
 
-	applications, errs := s.ParseApplicationEmails(emails)
-	if len(errs) > 0 {
-		for _, err := range errs {
-			log.Printf("Error analyze application emails, error: %s", err.Error())
+	var applications gcp.Applications
+	if useLlm {
+		var errs []error
+		applications, errs = s.ParseApplicationEmails(emails)
+		if len(errs) > 0 {
+			for _, err := range errs {
+				log.Printf("Error analyze application emails, error: %s", err.Error())
+			}
+			return err
 		}
-		return err
-	}
 
-	log.Printf("Success! Parsed %d email records:\n", len(emails))
+		log.Printf("Success! Parsed %d email records:\n", len(emails))
+	} else {
+		applications = emails.ToApplications()
+	}
 
 	if len(applications) > 0 {
 		applications.Print()
@@ -105,6 +111,8 @@ func main() {
 	gen := flag.Bool("gen", false, "load existing job application data from csv file")
 	start_time := flag.String("start_time", "", "start time for filtering email application confirmations, format: 2006-01-01")
 	end_time := flag.String("end_time", "", "end time for filtering email application confirmations, format: 2006-01-02")
+	llm := flag.Bool("llm", false, "using LLM to analyze application confirmation")
+
 	flag.Parse()
 
 	if *load {
@@ -122,7 +130,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		err := genApplicationData(*start_time, *end_time, *json, *csv)
+		err := genApplicationData(*start_time, *end_time, *json, *csv, *llm)
 		if err != nil {
 			os.Exit(1)
 		}

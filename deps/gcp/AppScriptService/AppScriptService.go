@@ -13,18 +13,16 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/script/v1"
 
-	analyzer "github.com/MaxBear/maxhire/analyzer/openai"
 	"github.com/MaxBear/maxhire/deps/gcp/models"
 )
 
 type AppScriptService struct {
-	context                   context.Context
+	ctx                       context.Context
 	withCredFile              string
 	withTokFile               string
 	withOauthRedirectUrl      string
 	withOauthRedirectPort     int
 	withAppScriptDeploymentId string
-	llm                       *analyzer.Ai
 	oAuthClient               *http.Client
 	scriptService             *script.Service
 }
@@ -61,15 +59,9 @@ func WithAppScriptDeploymentId(id string) AppScriptServiceOpt {
 	}
 }
 
-func WithLlmAnalyzer(llm *analyzer.Ai) AppScriptServiceOpt {
-	return func(s *AppScriptService) {
-		s.llm = llm
-	}
-}
-
 func New(ctx context.Context, opts ...AppScriptServiceOpt) (*AppScriptService, error) {
 	s := &AppScriptService{
-		context: ctx,
+		ctx: ctx,
 	}
 
 	for _, opt := range opts {
@@ -133,10 +125,10 @@ func (s *AppScriptService) getTokenFromWeb(config *oauth2.Config) (*oauth2.Token
 
 	// Wait for the code from the browser
 	code := <-codeCh
-	server.Shutdown(context.Background())
+	server.Shutdown(s.ctx)
 
 	// Exchange the code for an actual Token
-	tok, err := config.Exchange(context.TODO(), code)
+	tok, err := config.Exchange(s.ctx, code)
 	if err != nil {
 		log.Printf("Unable to retrieve token from web: %v", err)
 		return nil, err
@@ -178,7 +170,7 @@ func (s *AppScriptService) getClient(config *oauth2.Config) (*http.Client, error
 	tok, err := s.tokenFromFile()
 	if err == nil {
 		log.Println("Using existing token. If you get AuthRequiredError, delete token.json and re-run to re-authenticate with new scopes.")
-		return config.Client(s.context, tok), nil
+		return config.Client(s.ctx, tok), nil
 	}
 
 	log.Println("No existing token founing OAuth flow...")
@@ -191,11 +183,11 @@ func (s *AppScriptService) getClient(config *oauth2.Config) (*http.Client, error
 		return nil, err
 	}
 
-	return config.Client(s.context, tok), nil
+	return config.Client(s.ctx, tok), nil
 }
 
-func (s *AppScriptService) GetApplicationEmails(start_date, end_date string) (models.EmailRecords, error) {
-	emails := []*models.EmailRecord{}
+func (s *AppScriptService) GetApplicationEmails(start_date, end_date string) (models.RawEmailRecords, error) {
+	emails := []*models.RawEmailRecord{}
 
 	req := &script.ExecutionRequest{
 		Function: "runFilterMyEmails", // The name of the function in your .gs file
@@ -248,46 +240,4 @@ func (s *AppScriptService) GetApplicationEmails(start_date, end_date string) (mo
 	}
 
 	return emails, nil
-}
-
-func (s *AppScriptService) guessCompanyName(email *models.EmailRecord) (string, error) {
-	companyName, err := s.llm.GuessCompanyAppliedBasedOnSubject(s.context, email.Subject)
-	if err != nil {
-		log.Printf("llm error when try to guess company name based on email subject %q, err : %s", email.Subject, err.Error())
-		return "", err
-	}
-	if !models.Company(companyName).Invalid() {
-		return companyName, nil
-	}
-	ddomain := models.Sender(email.FullSender)
-	companyName, noreply := ddomain.Domain()
-	if noreply {
-		return companyName, nil
-	}
-	companyName, err = s.llm.GuessCompanyAppliedBasedOnSender(s.context, string(email.FullSender))
-	if err != nil {
-		log.Printf("llm error when try to guess company name based on sender address %q, err : %s", email.FullSender, err.Error())
-		return "", err
-	}
-	return companyName, nil
-}
-
-func (s *AppScriptService) ParseApplicationEmails(emails models.EmailRecords) (models.Applications, []error) {
-	var applications models.Applications
-	applications = []*models.Application{}
-	errs := []error{}
-
-	for idx, email := range emails {
-		application := &models.Application{
-			EmailRecord: email,
-			Status:      models.Pending,
-		}
-		companyName, _ := s.guessCompanyName(email)
-		application.Company = companyName
-		log.Printf("%d %s %s => %s", idx+1, email.Subject, email.FullSender, companyName)
-
-		applications = append(applications, application)
-	}
-
-	return applications, errs
 }

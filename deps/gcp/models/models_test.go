@@ -41,7 +41,7 @@ func TestCompany(t *testing.T) {
 		"Thank you for your application",
 		"Thank you for your application!",
 		"Thank you for your interest!",
-		"Thanks for applying, Nancy!",
+		"Thanks for applying, Jane!",
 		"Thank you for your application!",
 	}
 
@@ -67,15 +67,15 @@ func TestSender(t *testing.T) {
 func TestFromJson(t *testing.T) {
 
 	tcs := []struct {
-		apps     Applications
+		apps     Emails
 		jsonFile string
 	}{
 		{
-			apps: []*Application{
+			apps: []*Email{
 				{
 					Company: "Samsara",
 					Status:  Pending,
-					EmailRecord: &EmailRecord{
+					EmailRecord: &RawEmailRecord{
 						SentTime:   time.Date(2025, time.October, 3, 19, 02, 06, 0, time.UTC),
 						Subject:    "Thank you for applying to Samsara",
 						FullSender: "no-reply@us.greenhouse-mail.io",

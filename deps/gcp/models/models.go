@@ -18,7 +18,7 @@ type ApiResp struct {
 }
 
 // EmailRecord represents a single email record returned from the script
-type EmailRecord struct {
+type RawEmailRecord struct {
 	SentTime   time.Time `json:"SentTime"`
 	Subject    string    `json:"Subject"`
 	FullSender string    `json:"FullSender"`
@@ -26,10 +26,10 @@ type EmailRecord struct {
 	Msg        string    `json:"Msg"`
 }
 
-type EmailRecords []*EmailRecord
+type RawEmailRecords []*RawEmailRecord
 
-func (ut *EmailRecords) UnmarshalJSON(dat []byte) error {
-	var data []*EmailRecord
+func (ut *RawEmailRecords) UnmarshalJSON(dat []byte) error {
+	var data []*RawEmailRecord
 	err := json.Unmarshal(dat, &data)
 	if err != nil {
 		return err
@@ -38,10 +38,10 @@ func (ut *EmailRecords) UnmarshalJSON(dat []byte) error {
 	return nil
 }
 
-func (in EmailRecords) ToApplications() Applications {
-	res := []*Application{}
+func (in RawEmailRecords) ToEmails() Emails {
+	res := []*Email{}
 	for _, email := range in {
-		res = append(res, &Application{
+		res = append(res, &Email{
 			EmailRecord: email,
 		})
 	}
@@ -111,6 +111,19 @@ func (s Status) String() string {
 	return [...]string{"Pending", "Reject", "Success"}[s]
 }
 
+func ParseStatus(s string) (Status, error) {
+	statusMap := map[string]Status{
+		"pending": Pending,
+		"reject":  Reject,
+		"accept":  Success,
+	}
+
+	if val, ok := statusMap[s]; ok {
+		return val, nil
+	}
+	return Pending, fmt.Errorf("invalid status: %s", s)
+}
+
 // MarshalJSON allows the enum to be marshaled as a string in JSON
 func (s Status) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String())
@@ -135,15 +148,16 @@ func (s *Status) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type Application struct {
-	Company     string       `json:"Company"`
-	Status      Status       `json:"Status"`
-	EmailRecord *EmailRecord `json:"Email"`
+type Email struct {
+	Company     string          `json:"Company"`
+	Status      Status          `json:"Status"`
+	Position    string          `json:"Position"`
+	EmailRecord *RawEmailRecord `json:"Email"`
 }
 
-type Applications []*Application
+type Emails []*Email
 
-func (in Applications) ToJson(jsonFile string) error {
+func (in Emails) ToJson(jsonFile string) error {
 	fileData, err := json.MarshalIndent(in, "", "  ")
 	if err != nil {
 		log.Printf("Unable marshal json data, error : %s", err.Error())
@@ -161,26 +175,26 @@ func (in Applications) ToJson(jsonFile string) error {
 	return nil
 }
 
-func FromJson(jsonFile string) (Applications, error) {
-	var apps Applications
-	apps = []*Application{}
+func FromJson(jsonFile string) (Emails, error) {
+	var emails Emails
+	emails = []*Email{}
 
 	byteValue, err := os.ReadFile(jsonFile)
 	if err != nil {
 		log.Printf("Unable marshal json data, error : %s", err.Error())
-		return apps, err
+		return emails, err
 	}
 
 	// 2. Unmarshal JSON into the struct
-	if err := json.Unmarshal(byteValue, &apps); err != nil {
+	if err := json.Unmarshal(byteValue, &emails); err != nil {
 		log.Printf("Unable unmarshal application data from json file %q, error : %s", jsonFile, err.Error())
-		return apps, err
+		return emails, err
 	}
 
-	return apps, nil
+	return emails, nil
 }
 
-func (in Applications) ToCsv(csvFile string) error {
+func (in Emails) ToCsv(csvFile string) error {
 	f, err := os.OpenFile(csvFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Printf("Unable to cache application csv file, error : %v", err)
@@ -192,16 +206,18 @@ func (in Applications) ToCsv(csvFile string) error {
 	defer writer.Flush()
 
 	// Write Header
-	writer.Write([]string{"SentTime", "Subject", "FullSender", "Domain", "Company"})
+	writer.Write([]string{"SentTime", "Subject", "FullSender", "Domain", "Company", "Position", "Status"})
 
 	// Write Records
-	for _, app := range in {
+	for _, email := range in {
 		record := []string{
-			app.EmailRecord.SentTime.Format(time.RFC1123),
-			app.EmailRecord.Subject,
-			app.EmailRecord.FullSender,
-			app.EmailRecord.Domain,
-			app.Company,
+			email.EmailRecord.SentTime.Format(time.RFC1123),
+			email.EmailRecord.Subject,
+			email.EmailRecord.FullSender,
+			email.EmailRecord.Domain,
+			email.Company,
+			email.Position,
+			email.Status.String(),
 		}
 		writer.Write(record)
 	}
@@ -210,9 +226,9 @@ func (in Applications) ToCsv(csvFile string) error {
 	return nil
 }
 
-func FromCsv(csvFile string) (Applications, error) {
-	var apps Applications
-	apps = []*Application{}
+func FromCsv(csvFile string) (Emails, error) {
+	var apps Emails
+	apps = []*Email{}
 
 	f, err := os.Open(csvFile)
 	if err != nil {
@@ -243,9 +259,9 @@ func FromCsv(csvFile string) (Applications, error) {
 			return apps, err
 		}
 
-		app := &Application{
+		app := &Email{
 			Company: record[colMap["Company"]],
-			EmailRecord: &EmailRecord{
+			EmailRecord: &RawEmailRecord{
 				SentTime:   t,
 				Subject:    record[colMap["Subject"]],
 				FullSender: record[colMap["FullSender"]],
@@ -259,13 +275,15 @@ func FromCsv(csvFile string) (Applications, error) {
 	return apps, nil
 }
 
-func (in Applications) Print() {
-	for i, app := range in {
-		fmt.Printf("\n[%d] Subject: %s\n", i+1, app.EmailRecord.Subject)
-		fmt.Printf("%10s: %s\n", "SentTime", app.EmailRecord.SentTime.Local().Format(time.RFC1123Z))
-		fmt.Printf("%10s: %s\n", "Sender", app.EmailRecord.FullSender)
-		fmt.Printf("%10s: %s\n", "Domain", app.EmailRecord.Domain)
-		fmt.Printf("%10s: %s\n", "Company", app.Company)
-		fmt.Printf("%10s: %s\n", "Status", app.Status)
+func (in Emails) Print() {
+	for i, email := range in {
+		fmt.Printf("\n[%d] Subject: %s\n", i+1, email.EmailRecord.Subject)
+		fmt.Printf("%10s: %s\n", "SentTime", email.EmailRecord.SentTime.Local().Format(time.RFC1123Z))
+		fmt.Printf("%10s: %s\n", "Sender", email.EmailRecord.FullSender)
+		fmt.Printf("%10s: %s\n", "Domain", email.EmailRecord.Domain)
+		fmt.Printf("%10s: %s\n", "Msg", email.EmailRecord.Msg)
+		fmt.Printf("%10s: %s\n", "Company", email.Company)
+		fmt.Printf("%10s: %s\n", "Position", email.Position)
+		fmt.Printf("%10s: %s\n", "Status", email.Status)
 	}
 }

@@ -43,4 +43,7 @@ message ListApplicationsRequest {
     // Optional filter by date range
     // If end_date is provided, only applications on or before this date are returned
     google.protobuf.Timestamp end_date = 3;
+    
+    // Optional filter by company name (exact match)
+    string company = 4;
 }

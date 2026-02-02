@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	gcp "github.com/MaxBear/maxhire/deps/gcp/models"
 	"github.com/MaxBear/maxhire/models"
@@ -12,7 +13,14 @@ import (
 
 type Service interface {
 	SetApplications(context.Context, []*models.Application) error
-	ListApplications(context.Context) ([]*models.Application, error)
+	ListApplications(context.Context, *ListApplicationsFilters) ([]*models.Application, error)
+}
+
+type ListApplicationsFilters struct {
+	Status    *gcp.Status
+	Company   string
+	StartDate *time.Time
+	EndDate   *time.Time
 }
 
 func NewService(ctx context.Context, jsonFile string) (*serviceImpl, error) {
@@ -42,11 +50,40 @@ type serviceImpl struct {
 	ctx          context.Context
 }
 
-func (s *serviceImpl) ListApplications(ctx context.Context) ([]*models.Application, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *serviceImpl) ListApplications(ctx context.Context, filters *ListApplicationsFilters) ([]*models.Application, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
-	return s.applications, nil
+	if filters == nil {
+		return s.applications, nil
+	}
+
+	var filtered []*models.Application
+	for _, app := range s.applications {
+		// Filter by company
+		if filters.Company != "" && app.Company != filters.Company {
+			continue
+		}
+
+		// Filter by status
+		if filters.Status != nil && app.Status != *filters.Status {
+			continue
+		}
+
+		// Filter by start date
+		if filters.StartDate != nil && app.Date.Before(*filters.StartDate) {
+			continue
+		}
+
+		// Filter by end date
+		if filters.EndDate != nil && app.Date.After(*filters.EndDate) {
+			continue
+		}
+
+		filtered = append(filtered, app)
+	}
+
+	return filtered, nil
 }
 
 func (s *serviceImpl) SetApplications(ctx context.Context, applications []*models.Application) error {

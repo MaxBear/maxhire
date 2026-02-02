@@ -236,7 +236,9 @@ type ListApplicationsRequest struct {
 	StartDate *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
 	// Optional filter by date range
 	// If end_date is provided, only applications on or before this date are returned
-	EndDate       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
+	EndDate *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
+	// Optional filter by company name (exact match)
+	Company       string `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -292,6 +294,13 @@ func (x *ListApplicationsRequest) GetEndDate() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ListApplicationsRequest) GetCompany() string {
+	if x != nil {
+		return x.Company
+	}
+	return ""
+}
+
 var File_proto_applications_v1_applications_proto protoreflect.FileDescriptor
 
 const file_proto_applications_v1_applications_proto_rawDesc = "" +
@@ -305,12 +314,13 @@ const file_proto_applications_v1_applications_proto_rawDesc = "" +
 	"\x16SetApplicationsRequest\x12@\n" +
 	"\fApplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fApplications\"X\n" +
 	"\x14ApplicationsResponse\x12@\n" +
-	"\fApplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fApplications\"\xc0\x01\n" +
+	"\fApplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fApplications\"\xda\x01\n" +
 	"\x17ListApplicationsRequest\x123\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x1b.maxbear.maxhire.StatusTypeR\x06status\x129\n" +
 	"\n" +
 	"start_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartDate\x125\n" +
-	"\bend_date\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate*2\n" +
+	"\bend_date\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\x12\x18\n" +
+	"\acompany\x18\x04 \x01(\tR\acompany*2\n" +
 	"\n" +
 	"StatusType\x12\v\n" +
 	"\aPENDING\x10\x00\x12\n" +

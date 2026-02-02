@@ -211,7 +211,7 @@ func (in Emails) ToCsv(csvFile string) error {
 	// Write Records
 	for _, email := range in {
 		record := []string{
-			email.EmailRecord.SentTime.Format(time.RFC1123),
+			email.EmailRecord.SentTime.Format(time.RFC3339),
 			email.EmailRecord.Subject,
 			email.EmailRecord.FullSender,
 			email.EmailRecord.Domain,

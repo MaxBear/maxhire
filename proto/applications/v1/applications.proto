@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package maxbear.maxhire;
+option go_package = "proto/gen/go/applications/v1;applicationspb";
+
+import "google/protobuf/timestamp.proto";
+
+service Applications {
+    rpc SetApplications(SetApplicationsRequest) returns (ApplicationsResponse) {};
+
+    rpc ListApplications(ListApplicationsRequest) returns (ApplicationsResponse) {};
+}
+
+enum StatusType {
+  PENDING = 0; // Must be the first element and 0
+  REJECT = 1;
+  SUCCESS = 2;
+}
+
+message Application {
+    google.protobuf.Timestamp date = 1;
+    string company = 2;
+    string position = 3;
+    StatusType status = 4;
+}
+
+message SetApplicationsRequest {
+    repeated Application Applications = 1;
+}
+
+message ApplicationsResponse {
+    repeated Application Applications = 1;
+}
+
+message ListApplicationsRequest {
+    // Optional filter by application status type
+    StatusType status = 1;
+    
+    // Optional filter by date range
+    // If start_date is provided, only applications on or after this date are returned
+    google.protobuf.Timestamp start_date = 2;
+    
+    // Optional filter by date range
+    // If end_date is provided, only applications on or before this date are returned
+    google.protobuf.Timestamp end_date = 3;
+}

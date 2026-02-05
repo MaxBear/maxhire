@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -47,8 +46,8 @@ func genApplicationData(ctx context.Context, start_time, end_time, jsonFile, csv
 		ctx,
 		gcpAppScriptService.WithOauthRedirectPort(8080),
 		gcpAppScriptService.WithOauthRedirectUrl("http://localhost:8080"),
-		gcpAppScriptService.WithCredFile("../configs/gcp_app_script_credentials.json"),
-		gcpAppScriptService.WithTokFile("../configs/gcp_oauth_token.json"),
+		gcpAppScriptService.WithCredFile("../../configs/gcp_app_script_credentials.json"),
+		gcpAppScriptService.WithTokFile("../../configs/gcp_oauth_token.json"),
 		gcpAppScriptService.WithAppScriptDeploymentId(appScriptDeploymentId),
 	)
 	if err != nil {
@@ -56,19 +55,19 @@ func genApplicationData(ctx context.Context, start_time, end_time, jsonFile, csv
 		return err
 	}
 
+	log.Printf("App Script call starts...")
+	start := time.Now()
 	raws, err := s.GetApplicationEmails(start_time, end_time)
 	if err != nil {
 		log.Printf("Error get application emails using Gcp App Script service, error: %s", err.Error())
 		return err
 	}
-
-	jsonOutput, _ := json.MarshalIndent(raws, "", "  ")
-	fmt.Printf("\nJSON output:\n%s\n", string(jsonOutput))
+	duration := time.Since(start)
+	log.Printf("App Script call took: %0.3f (s), %d (ms)\n", duration.Seconds(), duration.Milliseconds())
 
 	emails := raws.ToEmails()
 
 	if len(emails) > 0 {
-		emails.Print()
 		emails.ToCsv(csvFile)
 		emails.ToJson(jsonFile)
 	}
@@ -91,8 +90,6 @@ func analyzeApplicationData(ctx context.Context, jsonFile string) error {
 		log.Printf("unable to load application data from %s\n, error: %s", jsonFile, err.Error())
 		return err
 	}
-
-	emails.Print()
 
 	llm, err := analyzer.New()
 	if err != nil {
@@ -133,7 +130,7 @@ func main() {
 
 	ctx := context.Background()
 
-	err := godotenv.Load("../configs/.env")
+	err := godotenv.Load("../../configs/.env")
 	if err != nil {
 		log.Printf("Error loading .env file, error: %s", err.Error())
 		os.Exit(1)
@@ -149,8 +146,6 @@ func main() {
 		if err != nil {
 			os.Exit(1)
 		}
-
-		os.Exit(0)
 	}
 
 	// Use llm to populate fields such as company name, application status etc.

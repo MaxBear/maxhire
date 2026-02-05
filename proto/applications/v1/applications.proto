@@ -25,11 +25,11 @@ message Application {
 }
 
 message SetApplicationsRequest {
-    repeated Application Applications = 1;
+    repeated Application applications = 1;
 }
 
 message ApplicationsResponse {
-    repeated Application Applications = 1;
+    repeated Application applications = 1;
 }
 
 message ListApplicationsRequest {

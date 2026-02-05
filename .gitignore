@@ -2,3 +2,5 @@
 configs/*
 deps/gcp/AppScript
 data/*
+*.json
+*.csv

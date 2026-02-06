@@ -15,6 +15,7 @@ enum StatusType {
   PENDING = 0; // Must be the first element and 0
   REJECT = 1;
   SUCCESS = 2;
+  APPLIED = 3;
 }
 
 message Application {

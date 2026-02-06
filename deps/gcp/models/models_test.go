@@ -65,7 +65,6 @@ func TestSender(t *testing.T) {
 }
 
 func TestFromJson(t *testing.T) {
-
 	tcs := []struct {
 		apps     Emails
 		jsonFile string
@@ -92,6 +91,249 @@ func TestFromJson(t *testing.T) {
 			apps, err := FromJson(tc.jsonFile)
 			require.Nil(t, err)
 			assert.Equal(t, tc.apps, apps)
+		})
+	}
+}
+
+func TestUpdateStatus(t *testing.T) {
+	tcs := []struct {
+		apps     Emails
+		expected Emails
+	}{
+		{
+			apps: []*Email{
+				{
+					Company:  "Pinterest",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.February, 4, 21, 15, 34, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Pinterest",
+					Status:   Pending,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.January, 28, 2, 39, 5, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Pinterest",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 20, 16, 15, 1, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Pinterest",
+					Status:   Pending,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 10, 14, 31, 5, 0, time.UTC),
+					},
+				},
+			},
+			expected: []*Email{
+				{
+					Company:  "Pinterest",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.February, 4, 21, 15, 34, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Pinterest",
+					Status:   Applied,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.January, 28, 2, 39, 5, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Pinterest",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 20, 16, 15, 1, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Pinterest",
+					Status:   Applied,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 10, 14, 31, 5, 0, time.UTC),
+					},
+				},
+			},
+		},
+		{
+			apps: []*Email{
+				{
+					Company:  "Twilio",
+					Status:   Pending,
+					Position: "Senior Software Engineer, Platform Observability",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.February, 4, 15, 50, 45, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Twilio",
+					Status:   Reject,
+					Position: "Senior Software Engineer L3",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 25, 15, 59, 52, 0, time.UTC),
+					},
+				},
+			},
+			expected: []*Email{
+				{
+					Company:  "Twilio",
+					Status:   Pending,
+					Position: "Senior Software Engineer, Platform Observability",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.February, 4, 15, 50, 45, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Twilio",
+					Status:   Reject,
+					Position: "Senior Software Engineer L3",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 25, 15, 59, 52, 0, time.UTC),
+					},
+				},
+			},
+		},
+		{
+			apps: []*Email{
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Full Stack Engineer, Money as a Service",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.February, 4, 15, 32, 10, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.December, 1, 18, 13, 1, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Backend Engineer, Payments and Risk",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 28, 20, 45, 5, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 26, 14, 3, 38, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Technical Operations, Integration Reliability Engineer, Link",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 17, 15, 33, 10, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Backend Engineer/API, Payments and Risk",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.October, 29, 14, 54, 10, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Backend Engineer, Data",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.October, 3, 19, 24, 6, 0, time.UTC),
+					},
+				},
+			},
+			expected: []*Email{
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Full Stack Engineer, Money as a Service",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2026, time.February, 4, 15, 32, 10, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.December, 1, 18, 13, 1, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Applied,
+					Position: "Backend Engineer, Payments and Risk",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 28, 20, 45, 5, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Reject,
+					Position: "not specified",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 26, 14, 3, 38, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Applied,
+					Position: "Technical Operations, Integration Reliability Engineer, Link",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.November, 17, 15, 33, 10, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Backend Engineer/API, Payments and Risk",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.October, 29, 14, 54, 10, 0, time.UTC),
+					},
+				},
+				{
+					Company:  "Stripe",
+					Status:   Pending,
+					Position: "Backend Engineer, Data",
+					EmailRecord: &RawEmailRecord{
+						SentTime: time.Date(2025, time.October, 3, 19, 24, 6, 0, time.UTC),
+					},
+				},
+			},
+		},
+	}
+	for i, tc := range tcs {
+		t.Run(fmt.Sprintf("test%d", i), func(t *testing.T) {
+			tc.apps.UpdateStatus()
+			for _, app := range tc.apps {
+				fmt.Printf("%+v\n", app)
+			}
+			assert.Equal(t, tc.expected, tc.apps)
 		})
 	}
 }

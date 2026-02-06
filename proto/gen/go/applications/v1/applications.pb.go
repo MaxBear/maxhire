@@ -74,19 +74,138 @@ func (StatusType) EnumDescriptor() ([]byte, []int) {
 	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{0}
 }
 
+type InterviewType int32
+
+const (
+	InterviewType_UNSPECIFIED        InterviewType = 0 // Must be the first element and 0
+	InterviewType_RECRUITER_SCREEN   InterviewType = 1
+	InterviewType_MANAGER_SCREEN     InterviewType = 2
+	InterviewType_TECH_CODING        InterviewType = 3
+	InterviewType_TECH_SYSTEM_DESIGN InterviewType = 4
+	InterviewType_TEAM_MATCH         InterviewType = 5
+)
+
+// Enum value maps for InterviewType.
+var (
+	InterviewType_name = map[int32]string{
+		0: "UNSPECIFIED",
+		1: "RECRUITER_SCREEN",
+		2: "MANAGER_SCREEN",
+		3: "TECH_CODING",
+		4: "TECH_SYSTEM_DESIGN",
+		5: "TEAM_MATCH",
+	}
+	InterviewType_value = map[string]int32{
+		"UNSPECIFIED":        0,
+		"RECRUITER_SCREEN":   1,
+		"MANAGER_SCREEN":     2,
+		"TECH_CODING":        3,
+		"TECH_SYSTEM_DESIGN": 4,
+		"TEAM_MATCH":         5,
+	}
+)
+
+func (x InterviewType) Enum() *InterviewType {
+	p := new(InterviewType)
+	*p = x
+	return p
+}
+
+func (x InterviewType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (InterviewType) Descriptor() protoreflect.EnumDescriptor {
+	return file_proto_applications_v1_applications_proto_enumTypes[1].Descriptor()
+}
+
+func (InterviewType) Type() protoreflect.EnumType {
+	return &file_proto_applications_v1_applications_proto_enumTypes[1]
+}
+
+func (x InterviewType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use InterviewType.Descriptor instead.
+func (InterviewType) EnumDescriptor() ([]byte, []int) {
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{1}
+}
+
+type Interview struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Datetime      *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=datetime,proto3" json:"datetime,omitempty"`
+	InterviewType InterviewType          `protobuf:"varint,2,opt,name=interview_type,json=interviewType,proto3,enum=maxbear.maxhire.InterviewType" json:"interview_type,omitempty"`
+	DurationMin   int32                  `protobuf:"varint,3,opt,name=duration_min,json=durationMin,proto3" json:"duration_min,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Interview) Reset() {
+	*x = Interview{}
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Interview) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Interview) ProtoMessage() {}
+
+func (x *Interview) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Interview.ProtoReflect.Descriptor instead.
+func (*Interview) Descriptor() ([]byte, []int) {
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Interview) GetDatetime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Datetime
+	}
+	return nil
+}
+
+func (x *Interview) GetInterviewType() InterviewType {
+	if x != nil {
+		return x.InterviewType
+	}
+	return InterviewType_UNSPECIFIED
+}
+
+func (x *Interview) GetDurationMin() int32 {
+	if x != nil {
+		return x.DurationMin
+	}
+	return 0
+}
+
 type Application struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Date          *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
 	Company       string                 `protobuf:"bytes,2,opt,name=company,proto3" json:"company,omitempty"`
 	Position      string                 `protobuf:"bytes,3,opt,name=position,proto3" json:"position,omitempty"`
 	Status        StatusType             `protobuf:"varint,4,opt,name=status,proto3,enum=maxbear.maxhire.StatusType" json:"status,omitempty"`
+	Interviews    []*Interview           `protobuf:"bytes,5,rep,name=interviews,proto3" json:"interviews,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Application) Reset() {
 	*x = Application{}
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[0]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -98,7 +217,7 @@ func (x *Application) String() string {
 func (*Application) ProtoMessage() {}
 
 func (x *Application) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[0]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -111,7 +230,7 @@ func (x *Application) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Application.ProtoReflect.Descriptor instead.
 func (*Application) Descriptor() ([]byte, []int) {
-	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{0}
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Application) GetDate() *timestamppb.Timestamp {
@@ -142,6 +261,13 @@ func (x *Application) GetStatus() StatusType {
 	return StatusType_PENDING
 }
 
+func (x *Application) GetInterviews() []*Interview {
+	if x != nil {
+		return x.Interviews
+	}
+	return nil
+}
+
 type SetApplicationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Applications  []*Application         `protobuf:"bytes,1,rep,name=applications,proto3" json:"applications,omitempty"`
@@ -151,7 +277,7 @@ type SetApplicationsRequest struct {
 
 func (x *SetApplicationsRequest) Reset() {
 	*x = SetApplicationsRequest{}
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[1]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -163,7 +289,7 @@ func (x *SetApplicationsRequest) String() string {
 func (*SetApplicationsRequest) ProtoMessage() {}
 
 func (x *SetApplicationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[1]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -176,7 +302,7 @@ func (x *SetApplicationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetApplicationsRequest.ProtoReflect.Descriptor instead.
 func (*SetApplicationsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{1}
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SetApplicationsRequest) GetApplications() []*Application {
@@ -195,7 +321,7 @@ type ApplicationsResponse struct {
 
 func (x *ApplicationsResponse) Reset() {
 	*x = ApplicationsResponse{}
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[2]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -207,7 +333,7 @@ func (x *ApplicationsResponse) String() string {
 func (*ApplicationsResponse) ProtoMessage() {}
 
 func (x *ApplicationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[2]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -220,7 +346,7 @@ func (x *ApplicationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplicationsResponse.ProtoReflect.Descriptor instead.
 func (*ApplicationsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{2}
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ApplicationsResponse) GetApplications() []*Application {
@@ -248,7 +374,7 @@ type ListApplicationsRequest struct {
 
 func (x *ListApplicationsRequest) Reset() {
 	*x = ListApplicationsRequest{}
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[3]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -260,7 +386,7 @@ func (x *ListApplicationsRequest) String() string {
 func (*ListApplicationsRequest) ProtoMessage() {}
 
 func (x *ListApplicationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_applications_v1_applications_proto_msgTypes[3]
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -273,7 +399,7 @@ func (x *ListApplicationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListApplicationsRequest.ProtoReflect.Descriptor instead.
 func (*ListApplicationsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{3}
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListApplicationsRequest) GetStatus() StatusType {
@@ -304,16 +430,131 @@ func (x *ListApplicationsRequest) GetCompany() string {
 	return ""
 }
 
+type SetInterviewsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Date to identify the application
+	Date *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	// Company name to identify the application
+	Company string `protobuf:"bytes,2,opt,name=company,proto3" json:"company,omitempty"`
+	// Interviews to set for the application (replaces existing interviews)
+	Interviews    []*Interview `protobuf:"bytes,3,rep,name=interviews,proto3" json:"interviews,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetInterviewsRequest) Reset() {
+	*x = SetInterviewsRequest{}
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetInterviewsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetInterviewsRequest) ProtoMessage() {}
+
+func (x *SetInterviewsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetInterviewsRequest.ProtoReflect.Descriptor instead.
+func (*SetInterviewsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SetInterviewsRequest) GetDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Date
+	}
+	return nil
+}
+
+func (x *SetInterviewsRequest) GetCompany() string {
+	if x != nil {
+		return x.Company
+	}
+	return ""
+}
+
+func (x *SetInterviewsRequest) GetInterviews() []*Interview {
+	if x != nil {
+		return x.Interviews
+	}
+	return nil
+}
+
+type SetInterviewsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The updated application with the set interviews
+	Application   *Application `protobuf:"bytes,1,opt,name=application,proto3" json:"application,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetInterviewsResponse) Reset() {
+	*x = SetInterviewsResponse{}
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetInterviewsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetInterviewsResponse) ProtoMessage() {}
+
+func (x *SetInterviewsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_applications_v1_applications_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetInterviewsResponse.ProtoReflect.Descriptor instead.
+func (*SetInterviewsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_applications_v1_applications_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SetInterviewsResponse) GetApplication() *Application {
+	if x != nil {
+		return x.Application
+	}
+	return nil
+}
+
 var File_proto_applications_v1_applications_proto protoreflect.FileDescriptor
 
 const file_proto_applications_v1_applications_proto_rawDesc = "" +
 	"\n" +
-	"(proto/applications/v1/applications.proto\x12\x0fmaxbear.maxhire\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa8\x01\n" +
+	"(proto/applications/v1/applications.proto\x12\x0fmaxbear.maxhire\x1a\x1fgoogle/protobuf/timestamp.proto\"\xad\x01\n" +
+	"\tInterview\x126\n" +
+	"\bdatetime\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\bdatetime\x12E\n" +
+	"\x0einterview_type\x18\x02 \x01(\x0e2\x1e.maxbear.maxhire.InterviewTypeR\rinterviewType\x12!\n" +
+	"\fduration_min\x18\x03 \x01(\x05R\vdurationMin\"\xe4\x01\n" +
 	"\vApplication\x12.\n" +
 	"\x04date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12\x18\n" +
 	"\acompany\x18\x02 \x01(\tR\acompany\x12\x1a\n" +
 	"\bposition\x18\x03 \x01(\tR\bposition\x123\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x1b.maxbear.maxhire.StatusTypeR\x06status\"Z\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x1b.maxbear.maxhire.StatusTypeR\x06status\x12:\n" +
+	"\n" +
+	"interviews\x18\x05 \x03(\v2\x1a.maxbear.maxhire.InterviewR\n" +
+	"interviews\"Z\n" +
 	"\x16SetApplicationsRequest\x12@\n" +
 	"\fapplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fapplications\"X\n" +
 	"\x14ApplicationsResponse\x12@\n" +
@@ -323,17 +564,34 @@ const file_proto_applications_v1_applications_proto_rawDesc = "" +
 	"\n" +
 	"start_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartDate\x125\n" +
 	"\bend_date\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\x12\x18\n" +
-	"\acompany\x18\x04 \x01(\tR\acompany*?\n" +
+	"\acompany\x18\x04 \x01(\tR\acompany\"\x9c\x01\n" +
+	"\x14SetInterviewsRequest\x12.\n" +
+	"\x04date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12\x18\n" +
+	"\acompany\x18\x02 \x01(\tR\acompany\x12:\n" +
+	"\n" +
+	"interviews\x18\x03 \x03(\v2\x1a.maxbear.maxhire.InterviewR\n" +
+	"interviews\"W\n" +
+	"\x15SetInterviewsResponse\x12>\n" +
+	"\vapplication\x18\x01 \x01(\v2\x1c.maxbear.maxhire.ApplicationR\vapplication*?\n" +
 	"\n" +
 	"StatusType\x12\v\n" +
 	"\aPENDING\x10\x00\x12\n" +
 	"\n" +
 	"\x06REJECT\x10\x01\x12\v\n" +
 	"\aSUCCESS\x10\x02\x12\v\n" +
-	"\aAPPLIED\x10\x032\xda\x01\n" +
+	"\aAPPLIED\x10\x03*\x83\x01\n" +
+	"\rInterviewType\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10RECRUITER_SCREEN\x10\x01\x12\x12\n" +
+	"\x0eMANAGER_SCREEN\x10\x02\x12\x0f\n" +
+	"\vTECH_CODING\x10\x03\x12\x16\n" +
+	"\x12TECH_SYSTEM_DESIGN\x10\x04\x12\x0e\n" +
+	"\n" +
+	"TEAM_MATCH\x10\x052\xbc\x02\n" +
 	"\fApplications\x12c\n" +
 	"\x0fSetApplications\x12'.maxbear.maxhire.SetApplicationsRequest\x1a%.maxbear.maxhire.ApplicationsResponse\"\x00\x12e\n" +
-	"\x10ListApplications\x12(.maxbear.maxhire.ListApplicationsRequest\x1a%.maxbear.maxhire.ApplicationsResponse\"\x00B-Z+proto/gen/go/applications/v1;applicationspbb\x06proto3"
+	"\x10ListApplications\x12(.maxbear.maxhire.ListApplicationsRequest\x1a%.maxbear.maxhire.ApplicationsResponse\"\x00\x12`\n" +
+	"\rSetInterviews\x12%.maxbear.maxhire.SetInterviewsRequest\x1a&.maxbear.maxhire.SetInterviewsResponse\"\x00B-Z+proto/gen/go/applications/v1;applicationspbb\x06proto3"
 
 var (
 	file_proto_applications_v1_applications_proto_rawDescOnce sync.Once
@@ -347,33 +605,45 @@ func file_proto_applications_v1_applications_proto_rawDescGZIP() []byte {
 	return file_proto_applications_v1_applications_proto_rawDescData
 }
 
-var file_proto_applications_v1_applications_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_applications_v1_applications_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_proto_applications_v1_applications_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_proto_applications_v1_applications_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_applications_v1_applications_proto_goTypes = []any{
 	(StatusType)(0),                 // 0: maxbear.maxhire.StatusType
-	(*Application)(nil),             // 1: maxbear.maxhire.Application
-	(*SetApplicationsRequest)(nil),  // 2: maxbear.maxhire.SetApplicationsRequest
-	(*ApplicationsResponse)(nil),    // 3: maxbear.maxhire.ApplicationsResponse
-	(*ListApplicationsRequest)(nil), // 4: maxbear.maxhire.ListApplicationsRequest
-	(*timestamppb.Timestamp)(nil),   // 5: google.protobuf.Timestamp
+	(InterviewType)(0),              // 1: maxbear.maxhire.InterviewType
+	(*Interview)(nil),               // 2: maxbear.maxhire.Interview
+	(*Application)(nil),             // 3: maxbear.maxhire.Application
+	(*SetApplicationsRequest)(nil),  // 4: maxbear.maxhire.SetApplicationsRequest
+	(*ApplicationsResponse)(nil),    // 5: maxbear.maxhire.ApplicationsResponse
+	(*ListApplicationsRequest)(nil), // 6: maxbear.maxhire.ListApplicationsRequest
+	(*SetInterviewsRequest)(nil),    // 7: maxbear.maxhire.SetInterviewsRequest
+	(*SetInterviewsResponse)(nil),   // 8: maxbear.maxhire.SetInterviewsResponse
+	(*timestamppb.Timestamp)(nil),   // 9: google.protobuf.Timestamp
 }
 var file_proto_applications_v1_applications_proto_depIdxs = []int32{
-	5, // 0: maxbear.maxhire.Application.date:type_name -> google.protobuf.Timestamp
-	0, // 1: maxbear.maxhire.Application.status:type_name -> maxbear.maxhire.StatusType
-	1, // 2: maxbear.maxhire.SetApplicationsRequest.applications:type_name -> maxbear.maxhire.Application
-	1, // 3: maxbear.maxhire.ApplicationsResponse.applications:type_name -> maxbear.maxhire.Application
-	0, // 4: maxbear.maxhire.ListApplicationsRequest.status:type_name -> maxbear.maxhire.StatusType
-	5, // 5: maxbear.maxhire.ListApplicationsRequest.start_date:type_name -> google.protobuf.Timestamp
-	5, // 6: maxbear.maxhire.ListApplicationsRequest.end_date:type_name -> google.protobuf.Timestamp
-	2, // 7: maxbear.maxhire.Applications.SetApplications:input_type -> maxbear.maxhire.SetApplicationsRequest
-	4, // 8: maxbear.maxhire.Applications.ListApplications:input_type -> maxbear.maxhire.ListApplicationsRequest
-	3, // 9: maxbear.maxhire.Applications.SetApplications:output_type -> maxbear.maxhire.ApplicationsResponse
-	3, // 10: maxbear.maxhire.Applications.ListApplications:output_type -> maxbear.maxhire.ApplicationsResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	9,  // 0: maxbear.maxhire.Interview.datetime:type_name -> google.protobuf.Timestamp
+	1,  // 1: maxbear.maxhire.Interview.interview_type:type_name -> maxbear.maxhire.InterviewType
+	9,  // 2: maxbear.maxhire.Application.date:type_name -> google.protobuf.Timestamp
+	0,  // 3: maxbear.maxhire.Application.status:type_name -> maxbear.maxhire.StatusType
+	2,  // 4: maxbear.maxhire.Application.interviews:type_name -> maxbear.maxhire.Interview
+	3,  // 5: maxbear.maxhire.SetApplicationsRequest.applications:type_name -> maxbear.maxhire.Application
+	3,  // 6: maxbear.maxhire.ApplicationsResponse.applications:type_name -> maxbear.maxhire.Application
+	0,  // 7: maxbear.maxhire.ListApplicationsRequest.status:type_name -> maxbear.maxhire.StatusType
+	9,  // 8: maxbear.maxhire.ListApplicationsRequest.start_date:type_name -> google.protobuf.Timestamp
+	9,  // 9: maxbear.maxhire.ListApplicationsRequest.end_date:type_name -> google.protobuf.Timestamp
+	9,  // 10: maxbear.maxhire.SetInterviewsRequest.date:type_name -> google.protobuf.Timestamp
+	2,  // 11: maxbear.maxhire.SetInterviewsRequest.interviews:type_name -> maxbear.maxhire.Interview
+	3,  // 12: maxbear.maxhire.SetInterviewsResponse.application:type_name -> maxbear.maxhire.Application
+	4,  // 13: maxbear.maxhire.Applications.SetApplications:input_type -> maxbear.maxhire.SetApplicationsRequest
+	6,  // 14: maxbear.maxhire.Applications.ListApplications:input_type -> maxbear.maxhire.ListApplicationsRequest
+	7,  // 15: maxbear.maxhire.Applications.SetInterviews:input_type -> maxbear.maxhire.SetInterviewsRequest
+	5,  // 16: maxbear.maxhire.Applications.SetApplications:output_type -> maxbear.maxhire.ApplicationsResponse
+	5,  // 17: maxbear.maxhire.Applications.ListApplications:output_type -> maxbear.maxhire.ApplicationsResponse
+	8,  // 18: maxbear.maxhire.Applications.SetInterviews:output_type -> maxbear.maxhire.SetInterviewsResponse
+	16, // [16:19] is the sub-list for method output_type
+	13, // [13:16] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_proto_applications_v1_applications_proto_init() }
@@ -386,8 +656,8 @@ func file_proto_applications_v1_applications_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_applications_v1_applications_proto_rawDesc), len(file_proto_applications_v1_applications_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   4,
+			NumEnums:      2,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

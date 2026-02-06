@@ -9,6 +9,8 @@ service Applications {
     rpc SetApplications(SetApplicationsRequest) returns (ApplicationsResponse) {};
 
     rpc ListApplications(ListApplicationsRequest) returns (ApplicationsResponse) {};
+
+    rpc SetInterviews(SetInterviewsRequest) returns (SetInterviewsResponse) {};
 }
 
 enum StatusType {
@@ -18,11 +20,27 @@ enum StatusType {
   APPLIED = 3;
 }
 
+enum InterviewType {
+  UNSPECIFIED = 0; // Must be the first element and 0
+  RECRUITER_SCREEN = 1;
+  MANAGER_SCREEN = 2;
+  TECH_CODING = 3;
+  TECH_SYSTEM_DESIGN = 4;
+  TEAM_MATCH = 5;
+}
+
+message Interview {
+    google.protobuf.Timestamp datetime = 1;
+    InterviewType interview_type = 2;
+    int32 duration_min = 3; // Duration in minutes, default is 15 if not specified
+}
+
 message Application {
     google.protobuf.Timestamp date = 1;
     string company = 2;
     string position = 3;
     StatusType status = 4;
+    repeated Interview interviews = 5;
 }
 
 message SetApplicationsRequest {
@@ -47,4 +65,20 @@ message ListApplicationsRequest {
     
     // Optional filter by company name (exact match)
     string company = 4;
+}
+
+message SetInterviewsRequest {
+    // Date to identify the application
+    google.protobuf.Timestamp date = 1;
+    
+    // Company name to identify the application
+    string company = 2;
+    
+    // Interviews to set for the application (replaces existing interviews)
+    repeated Interview interviews = 3;
+}
+
+message SetInterviewsResponse {
+    // The updated application with the set interviews
+    Application application = 1;
 }

@@ -104,11 +104,12 @@ const (
 	Pending Status = iota // 0
 	Reject                // 1
 	Success               // 2
+	Applied               // 3
 )
 
 // String method for general printing (fmt.Println)
 func (s Status) String() string {
-	return [...]string{"Pending", "Reject", "Success"}[s]
+	return [...]string{"Pending", "Reject", "Success", "Applied"}[s]
 }
 
 func ParseStatus(s string) (Status, error) {
@@ -116,6 +117,7 @@ func ParseStatus(s string) (Status, error) {
 		"pending": Pending,
 		"reject":  Reject,
 		"accept":  Success,
+		"applied": Applied,
 	}
 
 	if val, ok := statusMap[s]; ok {
@@ -144,6 +146,8 @@ func (s *Status) UnmarshalJSON(data []byte) error {
 		*s = Reject
 	case "Success":
 		*s = Success
+	case "Applied":
+		*s = Applied
 	}
 	return nil
 }
@@ -285,5 +289,31 @@ func (in Emails) Print() {
 		fmt.Printf("%10s: %s\n", "Company", email.Company)
 		fmt.Printf("%10s: %s\n", "Position", email.Position)
 		fmt.Printf("%10s: %s\n", "Status", email.Status)
+	}
+}
+
+func (in Emails) UpdateStatus() {
+	// Group emails by company name
+	companyMap := make(map[string][]*Email)
+	for _, email := range in {
+		companyMap[email.Company] = append(companyMap[email.Company], email)
+	}
+
+	// For each company, check if any email has status = Reject
+	for _, emails := range companyMap {
+		for i, email := range emails {
+			if email.Status != Reject {
+				continue
+			}
+			// assuming emails are appended by descending sent time order
+			// flip the first subsequent email application status from PENDING to APPLIED
+
+			for _, eemail := range emails[i+1:] {
+				if eemail.Status == Pending {
+					eemail.Status = Applied
+					break
+				}
+			}
+		}
 	}
 }

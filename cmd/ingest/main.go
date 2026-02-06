@@ -105,8 +105,10 @@ func analyzeApplicationData(ctx context.Context, jsonFile string) error {
 		}
 	}
 
+	// change PENDING applications being REJECTED to status APPLIED
+	emails.UpdateStatus()
+
 	if len(emails) > 0 {
-		emails.Print()
 		emails.ToCsv(fmt.Sprintf("%s.csv", fname(jsonFile)))
 		emails.ToJson(fmt.Sprintf("%s.json", fname(jsonFile)))
 	}

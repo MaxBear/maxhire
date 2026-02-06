@@ -28,6 +28,7 @@ const (
 	StatusType_PENDING StatusType = 0 // Must be the first element and 0
 	StatusType_REJECT  StatusType = 1
 	StatusType_SUCCESS StatusType = 2
+	StatusType_APPLIED StatusType = 3
 )
 
 // Enum value maps for StatusType.
@@ -36,11 +37,13 @@ var (
 		0: "PENDING",
 		1: "REJECT",
 		2: "SUCCESS",
+		3: "APPLIED",
 	}
 	StatusType_value = map[string]int32{
 		"PENDING": 0,
 		"REJECT":  1,
 		"SUCCESS": 2,
+		"APPLIED": 3,
 	}
 )
 
@@ -141,7 +144,7 @@ func (x *Application) GetStatus() StatusType {
 
 type SetApplicationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Applications  []*Application         `protobuf:"bytes,1,rep,name=Applications,proto3" json:"Applications,omitempty"`
+	Applications  []*Application         `protobuf:"bytes,1,rep,name=applications,proto3" json:"applications,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -185,7 +188,7 @@ func (x *SetApplicationsRequest) GetApplications() []*Application {
 
 type ApplicationsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Applications  []*Application         `protobuf:"bytes,1,rep,name=Applications,proto3" json:"Applications,omitempty"`
+	Applications  []*Application         `protobuf:"bytes,1,rep,name=applications,proto3" json:"applications,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -312,21 +315,22 @@ const file_proto_applications_v1_applications_proto_rawDesc = "" +
 	"\bposition\x18\x03 \x01(\tR\bposition\x123\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x1b.maxbear.maxhire.StatusTypeR\x06status\"Z\n" +
 	"\x16SetApplicationsRequest\x12@\n" +
-	"\fApplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fApplications\"X\n" +
+	"\fapplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fapplications\"X\n" +
 	"\x14ApplicationsResponse\x12@\n" +
-	"\fApplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fApplications\"\xda\x01\n" +
+	"\fapplications\x18\x01 \x03(\v2\x1c.maxbear.maxhire.ApplicationR\fapplications\"\xda\x01\n" +
 	"\x17ListApplicationsRequest\x123\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x1b.maxbear.maxhire.StatusTypeR\x06status\x129\n" +
 	"\n" +
 	"start_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartDate\x125\n" +
 	"\bend_date\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\x12\x18\n" +
-	"\acompany\x18\x04 \x01(\tR\acompany*2\n" +
+	"\acompany\x18\x04 \x01(\tR\acompany*?\n" +
 	"\n" +
 	"StatusType\x12\v\n" +
 	"\aPENDING\x10\x00\x12\n" +
 	"\n" +
 	"\x06REJECT\x10\x01\x12\v\n" +
-	"\aSUCCESS\x10\x022\xda\x01\n" +
+	"\aSUCCESS\x10\x02\x12\v\n" +
+	"\aAPPLIED\x10\x032\xda\x01\n" +
 	"\fApplications\x12c\n" +
 	"\x0fSetApplications\x12'.maxbear.maxhire.SetApplicationsRequest\x1a%.maxbear.maxhire.ApplicationsResponse\"\x00\x12e\n" +
 	"\x10ListApplications\x12(.maxbear.maxhire.ListApplicationsRequest\x1a%.maxbear.maxhire.ApplicationsResponse\"\x00B-Z+proto/gen/go/applications/v1;applicationspbb\x06proto3"
@@ -356,8 +360,8 @@ var file_proto_applications_v1_applications_proto_goTypes = []any{
 var file_proto_applications_v1_applications_proto_depIdxs = []int32{
 	5, // 0: maxbear.maxhire.Application.date:type_name -> google.protobuf.Timestamp
 	0, // 1: maxbear.maxhire.Application.status:type_name -> maxbear.maxhire.StatusType
-	1, // 2: maxbear.maxhire.SetApplicationsRequest.Applications:type_name -> maxbear.maxhire.Application
-	1, // 3: maxbear.maxhire.ApplicationsResponse.Applications:type_name -> maxbear.maxhire.Application
+	1, // 2: maxbear.maxhire.SetApplicationsRequest.applications:type_name -> maxbear.maxhire.Application
+	1, // 3: maxbear.maxhire.ApplicationsResponse.applications:type_name -> maxbear.maxhire.Application
 	0, // 4: maxbear.maxhire.ListApplicationsRequest.status:type_name -> maxbear.maxhire.StatusType
 	5, // 5: maxbear.maxhire.ListApplicationsRequest.start_date:type_name -> google.protobuf.Timestamp
 	5, // 6: maxbear.maxhire.ListApplicationsRequest.end_date:type_name -> google.protobuf.Timestamp

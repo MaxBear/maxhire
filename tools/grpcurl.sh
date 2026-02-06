@@ -31,7 +31,21 @@ localhost:9000 maxbear.maxhire.Applications/ListApplications
 
 grpcurl -emit-defaults -import-path ./proto/applications/v1 -proto applications.proto -plaintext -d \
 '{
-    "start_date": "2025-10-03T00:00:00Z",
-    "end_date": "2025-10-04T00:00:00Z"
+    "start_date": "2026-01-28T00:00:00Z",
+    "end_date": "2026-01-29T00:00:00Z"
 }' \
 localhost:9000 maxbear.maxhire.Applications/ListApplications
+
+# Set interviews for GitLab application
+grpcurl -emit-defaults -import-path ./proto/applications/v1 -proto applications.proto -plaintext -d \
+'{
+    "date": "2026-01-28T02:50:10Z",
+    "company": "GitLab",
+    "interviews": [
+        {
+            "datetime": "2026-02-02T14:00:00Z",
+            "interview_type": "RECRUITER_SCREEN"
+        }
+    ]
+}' \
+localhost:9000 maxbear.maxhire.Applications/SetInterviews

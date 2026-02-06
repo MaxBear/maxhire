@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	gcp "github.com/MaxBear/maxhire/deps/gcp/models"
 	"github.com/MaxBear/maxhire/models"
@@ -79,5 +80,34 @@ func (i *Server) SetApplications(ctx context.Context, req *applicationspb.SetApp
 
 	return &applicationspb.ApplicationsResponse{
 		Applications: req.Applications,
+	}, nil
+}
+
+func (i *Server) SetInterviews(ctx context.Context, req *applicationspb.SetInterviewsRequest) (*applicationspb.SetInterviewsResponse, error) {
+	if req.GetDate() == nil {
+		return nil, fmt.Errorf("date is required")
+	}
+	if req.GetCompany() == "" {
+		return nil, fmt.Errorf("company is required")
+	}
+
+	date := req.GetDate().AsTime()
+	company := req.GetCompany()
+
+	// Convert protobuf interviews to models
+	interviews := make([]*models.Interview, 0, len(req.GetInterviews()))
+	for _, pbInterview := range req.GetInterviews() {
+		interview := models.InterviewFromPb(pbInterview)
+		interviews = append(interviews, &interview)
+	}
+
+	// Call service to set interviews
+	application, err := i.service.SetInterviews(ctx, date, company, interviews)
+	if err != nil {
+		return nil, err
+	}
+
+	return &applicationspb.SetInterviewsResponse{
+		Application: application.Pb(),
 	}, nil
 }

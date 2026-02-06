@@ -14,6 +14,7 @@ import (
 type Service interface {
 	SetApplications(context.Context, []*models.Application) error
 	ListApplications(context.Context, *ListApplicationsFilters) ([]*models.Application, error)
+	SetInterviews(context.Context, time.Time, string, []*models.Interview) (*models.Application, error)
 }
 
 type ListApplicationsFilters struct {
@@ -100,4 +101,33 @@ func (s *serviceImpl) SetApplications(ctx context.Context, applications []*model
 	s.applications = append(s.applications, applications...)
 
 	return nil
+}
+
+func (s *serviceImpl) SetInterviews(ctx context.Context, date time.Time, company string, interviews []*models.Interview) (*models.Application, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Find the application by date and company
+	var foundApp *models.Application
+	for _, app := range s.applications {
+		if app.Date.Equal(date) && app.Company == company {
+			foundApp = app
+			break
+		}
+	}
+
+	if foundApp == nil {
+		return nil, fmt.Errorf("application not found for date %v and company %s", date, company)
+	}
+
+	// Convert []*models.Interview to []models.Interview
+	interviewSlice := make([]models.Interview, len(interviews))
+	for i, interview := range interviews {
+		interviewSlice[i] = *interview
+	}
+
+	// Set the interviews (replace existing)
+	foundApp.Interviews = interviewSlice
+
+	return foundApp, nil
 }

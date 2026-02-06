@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Applications_SetApplications_FullMethodName  = "/maxbear.maxhire.Applications/SetApplications"
 	Applications_ListApplications_FullMethodName = "/maxbear.maxhire.Applications/ListApplications"
+	Applications_SetInterviews_FullMethodName    = "/maxbear.maxhire.Applications/SetInterviews"
 )
 
 // ApplicationsClient is the client API for Applications service.
@@ -29,6 +30,7 @@ const (
 type ApplicationsClient interface {
 	SetApplications(ctx context.Context, in *SetApplicationsRequest, opts ...grpc.CallOption) (*ApplicationsResponse, error)
 	ListApplications(ctx context.Context, in *ListApplicationsRequest, opts ...grpc.CallOption) (*ApplicationsResponse, error)
+	SetInterviews(ctx context.Context, in *SetInterviewsRequest, opts ...grpc.CallOption) (*SetInterviewsResponse, error)
 }
 
 type applicationsClient struct {
@@ -59,12 +61,23 @@ func (c *applicationsClient) ListApplications(ctx context.Context, in *ListAppli
 	return out, nil
 }
 
+func (c *applicationsClient) SetInterviews(ctx context.Context, in *SetInterviewsRequest, opts ...grpc.CallOption) (*SetInterviewsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetInterviewsResponse)
+	err := c.cc.Invoke(ctx, Applications_SetInterviews_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApplicationsServer is the server API for Applications service.
 // All implementations must embed UnimplementedApplicationsServer
 // for forward compatibility.
 type ApplicationsServer interface {
 	SetApplications(context.Context, *SetApplicationsRequest) (*ApplicationsResponse, error)
 	ListApplications(context.Context, *ListApplicationsRequest) (*ApplicationsResponse, error)
+	SetInterviews(context.Context, *SetInterviewsRequest) (*SetInterviewsResponse, error)
 	mustEmbedUnimplementedApplicationsServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedApplicationsServer) SetApplications(context.Context, *SetAppl
 }
 func (UnimplementedApplicationsServer) ListApplications(context.Context, *ListApplicationsRequest) (*ApplicationsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListApplications not implemented")
+}
+func (UnimplementedApplicationsServer) SetInterviews(context.Context, *SetInterviewsRequest) (*SetInterviewsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetInterviews not implemented")
 }
 func (UnimplementedApplicationsServer) mustEmbedUnimplementedApplicationsServer() {}
 func (UnimplementedApplicationsServer) testEmbeddedByValue()                      {}
@@ -138,6 +154,24 @@ func _Applications_ListApplications_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Applications_SetInterviews_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetInterviewsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationsServer).SetInterviews(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Applications_SetInterviews_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationsServer).SetInterviews(ctx, req.(*SetInterviewsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Applications_ServiceDesc is the grpc.ServiceDesc for Applications service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var Applications_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListApplications",
 			Handler:    _Applications_ListApplications_Handler,
+		},
+		{
+			MethodName: "SetInterviews",
+			Handler:    _Applications_SetInterviews_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
